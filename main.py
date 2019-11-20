@@ -187,12 +187,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='3DDFA inference pipeline')
     parser.add_argument('-f', '--files', nargs='+',
                         help='image files paths fed into network, single or multiple images')
-    parser.add_argument('-m', '--mode', default='cpu', type=str, help='gpu or cpu mode')
+    parser.add_argument('-m', '--mode', default='gpu', type=str, help='gpu or cpu mode')
     parser.add_argument('--show_flg', default='true', type=str2bool, help='whether show the visualization result')
     parser.add_argument('--bbox_init', default='one', type=str,
                         help='one|two: one-step bbox initialization or two-step')
     parser.add_argument('--dump_res', default='true', type=str2bool, help='whether write out the visualization image')
-    parser.add_argument('--dump_vertex', default='false', type=str2bool,
+    parser.add_argument('--dump_vertex', default='true', type=str2bool,
                         help='whether write out the dense face vertices to mat')
     parser.add_argument('--dump_ply', default='true', type=str2bool)
     parser.add_argument('--dump_pts', default='true', type=str2bool)
