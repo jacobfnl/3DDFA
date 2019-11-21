@@ -10,6 +10,9 @@ The pipeline of 3DDFA prediction: given one image, predict the 3d face vertices,
 1. CPU optimization: https://pmchojnacki.wordpress.com/2018/10/07/slow-pytorch-cpu-performance
 """
 
+import os
+import sys
+import ntpath
 import torch
 import torchvision.transforms as transforms
 import mobilenet_v1
@@ -58,10 +61,13 @@ def main(args):
     # 3. forward
     tri = sio.loadmat('visualize/tri.mat')['tri']
     transform = transforms.Compose([ToTensorGjz(), NormalizeGjz(mean=127.5, std=128)])
+    destination = args.destination
     for img_fp in args.files:
         img_ori = cv2.imread(img_fp)
+        img_fp = os.path.join(destination, ntpath.basename(img_fp))
+        frame_dlib = cv2.cvtColor(img_ori, cv2.COLOR_BGR2RGB)
         if args.dlib_bbox:
-            rects = face_detector(img_ori, 1)
+            rects = face_detector(frame_dlib, 1)
         else:
             rects = []
 
@@ -84,7 +90,7 @@ def main(args):
             # whether use dlib landmark to crop image, if not, use only face bbox to calc roi bbox for cropping
             if args.dlib_landmark:
                 # - use landmark for cropping
-                pts = face_regressor(img_ori, rect).parts()
+                pts = face_regressor(frame_dlib, rect).parts()
                 pts = np.array([[pt.x, pt.y] for pt in pts]).T
                 roi_box = parse_roi_box_from_landmark(pts)
             else:
@@ -181,12 +187,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='3DDFA inference pipeline')
     parser.add_argument('-f', '--files', nargs='+',
                         help='image files paths fed into network, single or multiple images')
-    parser.add_argument('-m', '--mode', default='cpu', type=str, help='gpu or cpu mode')
+    parser.add_argument('-m', '--mode', default='gpu', type=str, help='gpu or cpu mode')
     parser.add_argument('--show_flg', default='true', type=str2bool, help='whether show the visualization result')
     parser.add_argument('--bbox_init', default='one', type=str,
                         help='one|two: one-step bbox initialization or two-step')
     parser.add_argument('--dump_res', default='true', type=str2bool, help='whether write out the visualization image')
-    parser.add_argument('--dump_vertex', default='false', type=str2bool,
+    parser.add_argument('--dump_vertex', default='true', type=str2bool,
                         help='whether write out the dense face vertices to mat')
     parser.add_argument('--dump_ply', default='true', type=str2bool)
     parser.add_argument('--dump_pts', default='true', type=str2bool)
@@ -200,6 +206,6 @@ if __name__ == '__main__':
     parser.add_argument('--dlib_bbox', default='true', type=str2bool, help='whether use dlib to predict bbox')
     parser.add_argument('--dlib_landmark', default='true', type=str2bool,
                         help='whether use dlib landmark to crop image')
-
+    parser.add_argument('-d', '--destination', type=str, default='samples/')
     args = parser.parse_args()
     main(args)
