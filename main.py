@@ -53,7 +53,7 @@ def main(args):
 
     # 2. load dlib model for face detection and landmark used for face cropping
     if args.dlib_landmark:
-        dlib_landmark_model = 'models/shape_predictor_68_face_landmarks.dat'
+        dlib_landmark_model = args.landmark_model
         face_regressor = dlib.shape_predictor(dlib_landmark_model)
     if args.dlib_bbox:
         face_detector = dlib.get_frontal_face_detector()
@@ -206,6 +206,7 @@ if __name__ == '__main__':
     parser.add_argument('--dlib_bbox', default='true', type=str2bool, help='whether use dlib to predict bbox')
     parser.add_argument('--dlib_landmark', default='true', type=str2bool,
                         help='whether use dlib landmark to crop image')
+    parser.add_argument('--landmark_model', type=str, default='../data_models/shape_predictor_68_face_landmarks.dat')
     parser.add_argument('-d', '--destination', type=str, default='samples/')
     args = parser.parse_args()
     main(args)
